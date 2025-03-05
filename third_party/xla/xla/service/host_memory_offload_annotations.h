@@ -36,6 +36,10 @@ inline const absl::string_view kPinToDeviceCustomCallTarget = "PinToDevice";
 inline const absl::string_view kPinToDeviceSramCustomCallTarget =
     "PinToDeviceSram";
 
+inline const absl::string_view kInternalMemoryAnnotations[] = {
+    kMoveToHostCustomCallTarget, kMoveToDeviceCustomCallTarget,
+    kPinToDeviceCustomCallTarget, kPinToDeviceSramCustomCallTarget};
+
 }  // namespace host_memory_offload_annotations
 }  // namespace xla
 

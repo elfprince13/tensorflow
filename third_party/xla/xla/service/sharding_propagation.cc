@@ -183,11 +183,11 @@ bool IsPassthroughCustomOps(const HloInstruction* hlo) {
     return false;
   }
 
-  return hlo->IsCustomCall(
-      {"ResizeNearest", "ResizeBilinear", "ResizeNearestGrad",
-       "ResizeBilinearGrad", "Cholesky",
-       host_memory_offload_annotations::kMoveToDeviceCustomCallTarget,
-       host_memory_offload_annotations::kMoveToHostCustomCallTarget});
+  return hlo->IsCustomCall({"ResizeNearest", "ResizeBilinear",
+                            "ResizeNearestGrad", "ResizeBilinearGrad",
+                            "Cholesky"}) ||
+         hlo->IsCustomCall(
+             host_memory_offload_annotations::kInternalMemoryAnnotations);
 }
 
 // Return the operand which is the most suitable for determining the sharding
