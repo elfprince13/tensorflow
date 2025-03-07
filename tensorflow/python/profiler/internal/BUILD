@@ -69,6 +69,15 @@ py_strict_test(
     ],
 )
 
+py_strict_test(
+    name = "_pywrap_test",
+    srcs = ["_pywrap_test.py"],
+    deps = [
+        ":_pywrap_profiler_plugin",
+        "//tensorflow/python/platform:client_testlib",
+    ],
+)
+
 cuda_py_strict_test(
     name = "run_metadata_test",
     srcs = ["run_metadata_test.py"],
@@ -224,6 +233,7 @@ tsl_pybind_extension(
         "@local_xla//xla/tsl/framework:allocator_registry_impl",
         "@local_xla//xla/tsl/lib/io:table",
         "@local_xla//xla/tsl/platform:env_impl",
+        "@local_xla//xla/tsl/platform:types",
         "@local_xla//xla/tsl/platform/cloud:gcs_file_system",
         "@local_xla//xla/tsl/profiler/backends/cpu:traceme_recorder_impl",
         "@local_xla//xla/tsl/profiler/rpc:profiler_server_impl",
@@ -238,6 +248,7 @@ tsl_pybind_extension(
         "@local_xla//xla/tsl/protobuf:histogram_proto_cc_impl",
         "@local_xla//xla/tsl/protobuf:rpc_options_proto_cc_impl",
         "@local_xla//xla/tsl/protobuf:test_log_proto_cc_impl",
+        "@org_xprof//xprof/pywrap:profiler_plugin_impl",
         "@pybind11",
     ] + if_macos([
         "@local_xla//xla/tsl/lib/histogram",
