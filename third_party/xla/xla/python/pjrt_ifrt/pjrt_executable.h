@@ -30,6 +30,7 @@ limitations under the License.
 #include "absl/types/span.h"
 #include "llvm/Support/ExtensibleRTTI.h"
 #include "mlir/IR/BuiltinOps.h"
+#include "xla/ffi/type_id_registry.h"
 #include "xla/hlo/ir/hlo_sharding.h"
 #include "xla/pjrt/pjrt_client.h"
 #include "xla/pjrt/pjrt_executable.h"
@@ -184,7 +185,9 @@ class PjRtLoadedExecutable final
   static absl::StatusOr<std::unique_ptr<LoadedExecutable>> Create(
       PjRtCompatibleClient* client,
       std::shared_ptr<xla::PjRtLoadedExecutable> pjrt_loaded_executable,
-      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks);
+      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks,
+      bool has_callbacks, std::shared_ptr<void> ffi_loaded_host_callbacks,
+      xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id);
 
   // Creates PjRtExecutable from an MHLO or StableHLO MLIR module. We expect
   // that xla::PjRtLoadedExecutable has fixed output dtypes/shapes/shardings. If
@@ -194,7 +197,9 @@ class PjRtLoadedExecutable final
   static absl::StatusOr<std::unique_ptr<LoadedExecutable>> Create(
       PjRtCompatibleClient* client, mlir::ModuleOp module,
       xla::CompileOptions compile_options,
-      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks);
+      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks,
+      bool has_callbacks, std::shared_ptr<void> ffi_loaded_host_callbacks,
+      xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id);
 
   // PjRtCompatibleLoadedExecutable implementation.
 
@@ -311,7 +316,9 @@ class PjRtLoadedExecutable final
       absl::Span<const xla::DimensionVector> result_dimensions,
       const std::optional<xla::HloSharding>& result_hlo_sharding,
       const std::optional<std::vector<absl::string_view>>& result_memory_kinds,
-      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks);
+      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks,
+      bool has_callbacks, std::shared_ptr<void> ffi_loaded_host_callbacks,
+      xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id);
 
   PjRtLoadedExecutable(
       PjRtCompatibleClient* client,
@@ -319,6 +326,8 @@ class PjRtLoadedExecutable final
       DeviceListRef devices, std::vector<Device*> addressable_devices,
       std::vector<tsl::RCReference<LoadedHostCallback>>
           all_loaded_host_callbacks,
+      bool has_callbacks, std::shared_ptr<void> ffi_loaded_host_callbacks,
+      xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id,
       std::vector<PjRtHostSendAndRecvLoadedHostCallback*>
           host_send_recv_callbacks,
       std::vector<DType> output_dtypes, std::vector<Shape> output_shapes,
@@ -332,6 +341,9 @@ class PjRtLoadedExecutable final
   std::vector<Device*> addressable_devices_;
   std::shared_ptr<std::vector<tsl::RCReference<LoadedHostCallback>>>
       all_loaded_host_callbacks_;
+  bool has_callbacks_;
+  std::shared_ptr<void> ffi_loaded_host_callbacks_;
+  xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id_;
   std::vector<PjRtHostSendAndRecvLoadedHostCallback*> host_send_recv_callbacks_;
 
   // Output array specs. If the executable is portable, shardings in

@@ -26,6 +26,7 @@ limitations under the License.
 #include "mlir/IR/BuiltinOps.h"
 #include "mlir/IR/MLIRContext.h"
 #include "mlir/IR/OwningOpRef.h"
+#include "xla/ffi/type_id_registry.h"
 #include "xla/pjrt/pjrt_executable.h"
 #include "xla/python/ifrt/compiler.h"
 #include "xla/python/ifrt/host_callback.h"
@@ -42,14 +43,26 @@ namespace ifrt {
 struct XlaCompileOptions
     : llvm::RTTIExtends<XlaCompileOptions, CompileOptions> {
   XlaCompileOptions() = default;
-  explicit XlaCompileOptions(xla::CompileOptions compile_options,
-                             std::vector<tsl::RCReference<LoadedHostCallback>>
-                                 loaded_host_callbacks = {})
+  explicit XlaCompileOptions(
+      xla::CompileOptions compile_options,
+      std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks =
+          {},
+      bool has_callbacks = false,
+      std::shared_ptr<void> ffi_loaded_host_callbacks = nullptr,
+      xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id =
+          xla::ffi::TypeIdRegistry::kUnknownTypeId)
       : compile_options(std::move(compile_options)),
-        loaded_host_callbacks(std::move(loaded_host_callbacks)) {}
+        loaded_host_callbacks(std::move(loaded_host_callbacks)),
+        has_callbacks(has_callbacks),
+        ffi_loaded_host_callbacks(ffi_loaded_host_callbacks),
+        ffi_loaded_host_callbacks_type_id(
+            std::move(ffi_loaded_host_callbacks_type_id)) {}
 
   xla::CompileOptions compile_options;
   std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks;
+  bool has_callbacks;
+  std::shared_ptr<void> ffi_loaded_host_callbacks;
+  xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id;
 
   // CompileOptions implementation.
 
@@ -71,14 +84,25 @@ struct XlaDeserializeExecutableOptions
   explicit XlaDeserializeExecutableOptions(
       std::optional<xla::CompileOptions> compile_options,
       std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks =
-          {})
+          {},
+      bool has_callbacks = false,
+      std::shared_ptr<void> ffi_loaded_host_callbacks = nullptr,
+      xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id =
+          xla::ffi::TypeIdRegistry::kUnknownTypeId)
       : compile_options(std::move(compile_options)),
-        loaded_host_callbacks(std::move(loaded_host_callbacks)) {}
+        loaded_host_callbacks(std::move(loaded_host_callbacks)),
+        has_callbacks(has_callbacks),
+        ffi_loaded_host_callbacks(ffi_loaded_host_callbacks),
+        ffi_loaded_host_callbacks_type_id(
+            std::move(ffi_loaded_host_callbacks_type_id)) {}
 
   // `compile_options` may be unspecified if deserialization does not override
   // it.
   std::optional<xla::CompileOptions> compile_options;
   std::vector<tsl::RCReference<LoadedHostCallback>> loaded_host_callbacks;
+  bool has_callbacks;
+  std::shared_ptr<void> ffi_loaded_host_callbacks;
+  xla::ffi::TypeIdRegistry::TypeId ffi_loaded_host_callbacks_type_id;
 
   // DeserializeExecutableOptions implementation.
 
