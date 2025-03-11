@@ -954,6 +954,7 @@ cc_library(
         ":pjrt_executable",
         ":pjrt_future",
         "//xla:shape_util",
+        "//xla/ffi/api:ffi",
         "@com_google_absl//absl/base:core_headers",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
